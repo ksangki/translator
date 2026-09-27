@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="통역기">
+  <title>여행 통역기</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app" class="face-to-face">
+    <!-- 상대방(영어) 패널: 마주보기 모드에서 180도 회전 -->
+    <section class="panel them" id="panelThem" aria-label="English speaker">
+      <div class="panel-head">
+        <span class="badge">🇺🇸 English</span>
+        <span class="status" id="statusThem"></span>
+      </div>
+      <div class="bubble">
+        <p class="main-text" id="mainThem">Tap the mic and speak English.</p>
+        <p class="sub-text" id="subThem"></p>
+      </div>
+      <div class="panel-actions">
+        <button class="icon-btn" data-replay="them" aria-label="Replay">🔊</button>
+        <button class="mic" id="micThem" data-side="them" aria-label="Speak English">
+          <span class="mic-icon">🎤</span><span class="mic-label">Speak</span>
+        </button>
+        <button class="icon-btn" data-clear="them" aria-label="Clear">✕</button>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <button class="tool" id="btnPhrases">📖 여행 회화</button>
+      <button class="tool" id="btnType">⌨️ 입력</button>
+      <button class="tool" id="btnHistory">🕘 기록</button>
+      <button class="tool" id="btnSettings">⚙️</button>
+    </div>
+
+    <!-- 나(한국어) 패널 -->
+    <section class="panel me" id="panelMe" aria-label="한국어 사용자">
+      <div class="panel-head">
+        <span class="badge">🇰🇷 한국어</span>
+        <span class="status" id="statusMe"></span>
+      </div>
+      <div class="bubble">
+        <p class="main-text" id="mainMe">마이크를 누르고 한국어로 말하세요.</p>
+        <p class="sub-text" id="subMe"></p>
+      </div>
+      <div class="panel-actions">
+        <button class="icon-btn" data-replay="me" aria-label="다시 듣기">🔊</button>
+        <button class="mic" id="micMe" data-side="me" aria-label="한국어로 말하기">
+          <span class="mic-icon">🎤</span><span class="mic-label">말하기</span>
+        </button>
+        <button class="icon-btn" data-clear="me" aria-label="지우기">✕</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 바텀시트 -->
+  <div class="sheet-backdrop" id="backdrop" hidden></div>
+
+  <div class="sheet" id="sheetPhrases" hidden>
+    <div class="sheet-head"><h2>여행 회화</h2><button class="close" data-close>닫기</button></div>
+    <div class="chips" id="phraseCats"></div>
+    <ul class="phrase-list" id="phraseList"></ul>
+    <p class="hint">오프라인에서도 사용 가능 · 누르면 영어로 읽어줍니다</p>
+  </div>
+
+  <div class="sheet" id="sheetType" hidden>
+    <div class="sheet-head"><h2>텍스트 번역</h2><button class="close" data-close>닫기</button></div>
+    <div class="dir-toggle">
+      <button class="dir active" data-dir="me">한국어 → English</button>
+      <button class="dir" data-dir="them">English → 한국어</button>
+    </div>
+    <textarea id="typeInput" rows="3" placeholder="번역할 문장을 입력하세요"></textarea>
+    <button class="primary" id="typeGo">번역하기</button>
+  </div>
+
+  <div class="sheet" id="sheetHistory" hidden>
+    <div class="sheet-head"><h2>대화 기록</h2><button class="close" data-close>닫기</button></div>
+    <ul class="history-list" id="historyList"></ul>
+    <button class="secondary" id="historyClear">기록 전체 삭제</button>
+  </div>
+
+  <div class="sheet" id="sheetSettings" hidden>
+    <div class="sheet-head"><h2>설정</h2><button class="close" data-close>닫기</button></div>
+    <label class="row">
+      <span>마주보기 모드<small>상대방 화면을 뒤집어 테이블 위에 놓고 대화</small></span>
+      <input type="checkbox" id="optFace" checked>
+    </label>
+    <label class="row">
+      <span>번역 후 자동 읽기</span>
+      <input type="checkbox" id="optAutoSpeak" checked>
+    </label>
+    <label class="row">
+      <span>말하는 중 실시간 번역</span>
+      <input type="checkbox" id="optLive" checked>
+    </label>
+    <label class="row">
+      <span>영어 발음</span>
+      <select id="optAccent">
+        <option value="en-US">미국 (en-US)</option>
+        <option value="en-GB">영국 (en-GB)</option>
+        <option value="en-AU">호주 (en-AU)</option>
+        <option value="en-IN">인도 (en-IN)</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>읽기 속도 <b id="rateVal">1.0</b></span>
+      <input type="range" id="optRate" min="0.6" max="1.4" step="0.1" value="1">
+    </label>
+    <label class="row">
+      <span>화면 켜짐 유지</span>
+      <input type="checkbox" id="optWake" checked>
+    </label>
+    <p class="hint">음성 인식은 Chrome(Android)·Safari(iOS)에서 동작하며 인터넷 연결이 필요합니다.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="phrases.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
